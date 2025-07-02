@@ -40,8 +40,8 @@ jobs:
         builder: default
         provenance: false
         # Provide credentials here directly
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        username: 290701
+        password: dckr_pat_IpizDWGZQKoow8n75Vpzlhq-66Y
 
 
     # - name: Login to Docker Hub
