@@ -19,11 +19,11 @@ permissions:
 
 jobs:
   build:
-
-    runs-on: ${{matrix.os}}
-    strategy:
-      matrix:
-        os: ['ubuntu-latest','windows-latest','linux-latest']
+    runs-on: 'ubuntu-latest'
+    # runs-on: ${{matrix.os}} # this is to run the build all the os. step by step build
+    # strategy:
+    #   matrix:
+    #     os: ['ubuntu-latest','windows-latest','linux-latest']
 
     steps:
     - uses: actions/checkout@v4
