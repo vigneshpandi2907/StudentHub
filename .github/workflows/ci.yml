@@ -5,65 +5,107 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-
-name: Java CI with Maven
+name: Java CI with Maven and Docker
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+
 permissions:
   contents: read
-  security-events: write
 
 jobs:
-  build:
-    runs-on: 'ubuntu-latest'
-    # runs-on: ${{matrix.os}} # this is to run the build all the os. step by step build
-    # strategy:
-    #   matrix:
-    #     os: ['ubuntu-latest','windows-latest','linux-latest']
+  build-and-push:
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn clean package
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: 290701/studenthub:latest
+
+# name: Java CI with Maven
+
+# on:
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
+# permissions:
+#   contents: read
+#   security-events: write
+
+# jobs:
+#   build:
+#     runs-on: 'ubuntu-latest'
+#     # runs-on: ${{matrix.os}} # this is to run the build all the os. step by step build
+#     # strategy:
+#     #   matrix:
+#     #     os: ['ubuntu-latest','windows-latest','linux-latest']
+
+#     steps:
+#     - uses: actions/checkout@v4
+#     - name: Set up JDK 17
+#       uses: actions/setup-java@v4
+#       with:
+#         java-version: '17'
+#         distribution: 'temurin'
+#         cache: maven
+#     - name: Build with Maven
+#       run: mvn -B package --file pom.xml
       
-    # - name: Build and push Docker Image
-    #   uses: mr-smithers-excellent/docker-build-push@v4
-    #   with:
-    #     image: 290701/studenthub
-    #     registry: docker.io
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
+#     # - name: Build and push Docker Image
+#     #   uses: mr-smithers-excellent/docker-build-push@v4
+#     #   with:
+#     #     image: 290701/studenthub
+#     #     registry: docker.io
+#     #     username: ${{ secrets.DOCKER_USERNAME }}
+#     #     password: ${{ secrets.DOCKER_PASSWORD }}
           
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: 290701/studenthub:latest
+#   docker:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+#       - name: Set up QEMU
+#         uses: docker/setup-qemu-action@v3
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
+#       - name: Build and push
+#         uses: docker/build-push-action@v6
+#         with:
+#           context: .
+#           push: true
+#           tags: 290701/studenthub:latest
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
       # uses: advanced-security/maven-dependency-submission-action@v4
